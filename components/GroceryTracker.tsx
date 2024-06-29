@@ -16,6 +16,7 @@ export default function GroceryTracker() {
     const [form, setForm] = useState({name: '', cost: '', quantity: '', expiry: ''});
     const [monthlyTotals, setMonthlyTotals] = useState<{ [key: string]: number }>({});
     const [totalStock, setTotalStock] = useState<number>(0);
+    const [error, setError] = useState<string>('');
 
     useEffect(() => {
         const storedItems = localStorage.getItem('grocery-items');
@@ -49,13 +50,22 @@ export default function GroceryTracker() {
 
     const addItem = (e: FormEvent) => {
         e.preventDefault();
+        if (!form.name || !form.cost || !form.quantity || !form.expiry) {
+            setError('All fields are required');
+            return;
+        }
+        if (isNaN(parseFloat(form.cost)) || isNaN(parseInt(form.quantity))) {
+            setError('Cost and Quantity must be valid numbers');
+            return;
+        }
+
         const newItem = {
             id: Date.now(),
             name: form.name,
             cost: parseFloat(form.cost),
             quantity: parseInt(form.quantity),
             expiry: form.expiry,
-            dateAdded: new Date().toISOString().slice(0, 10) // Format: YYYY-MM-DD
+            dateAdded: new Date().toISOString().slice(0, 10), // Format: YYYY-MM-DD
         };
         const updatedItems = [...items, newItem];
         setItems(updatedItems);
@@ -63,12 +73,14 @@ export default function GroceryTracker() {
         calculateMonthlyTotals(updatedItems);
         calculateTotalStock(updatedItems);
         setForm({name: '', cost: '', quantity: '', expiry: ''});
+        setError('');
     };
 
     return (
         <div className="container mx-auto p-4">
             <h1 className="text-2xl font-bold mb-4">Grocery Tracker</h1>
             <form onSubmit={addItem} className="mb-4">
+                {error && <div className="mb-2 text-red-600">{error}</div>}
                 <div className="mb-2">
                     <label className="block text-sm font-medium">Name</label>
                     <input
