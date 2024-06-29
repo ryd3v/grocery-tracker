@@ -1,6 +1,8 @@
 'use client';
 
 import {FormEvent, useEffect, useState} from 'react';
+import {saveAs} from 'file-saver';
+import {parse} from 'papaparse';
 
 interface Item {
     id: number;
@@ -112,6 +114,44 @@ export default function GroceryTracker() {
         calculateTotalStock(updatedItems);
     };
 
+    // Function to convert items to CSV format
+    const convertToCSV = (items: Item[]) => {
+        const header = "id,name,cost,quantity,expiry,dateAdded\n";
+        const rows = items.map(item => `${item.id},${item.name},${item.cost},${item.quantity},${item.expiry},${item.dateAdded}`).join("\n");
+        return header + rows;
+    };
+
+    // Function to export items to a CSV file
+    const exportToCSV = () => {
+        const csvData = convertToCSV(items);
+        const blob = new Blob([csvData], {type: 'text/csv;charset=utf-8;'});
+        saveAs(blob, 'grocery_data.csv');
+    };
+
+    // Function to import items from a CSV file
+    const importFromCSV = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const text = e.target?.result?.toString();
+                if (text) {
+                    const result = parse<Item>(text, {header: true, dynamicTyping: true});
+                    const newItems = result.data.map(item => ({
+                        ...item,
+                        id: item.id || Date.now(),
+                        dateAdded: item.dateAdded || new Date().toISOString().slice(0, 10),
+                    }));
+                    setItems([...items, ...newItems]);
+                    localStorage.setItem('grocery-items', JSON.stringify([...items, ...newItems]));
+                    calculateMonthlyTotals([...items, ...newItems]);
+                    calculateTotalStock([...items, ...newItems]);
+                }
+            };
+            reader.readAsText(file);
+        }
+    };
+
     return (
         <div className="container mx-auto p-4">
             <h1 className="text-2xl font-bold mb-4">Grocery Tracker</h1>
@@ -156,6 +196,10 @@ export default function GroceryTracker() {
                 <button type="submit"
                         className="bg-blue-500 text-white px-4 py-2">{editingItemId !== null ? 'Update Item' : 'Add Item'}</button>
             </form>
+            <div>
+                <button onClick={exportToCSV} className="bg-green-500 text-white px-4 py-2 mb-4">Export to CSV</button>
+                <input type="file" accept=".csv" onChange={importFromCSV} className="mb-4"/>
+            </div>
             <div>
                 <h2 className="text-xl font-semibold mb-2">Items</h2>
                 <ul>
