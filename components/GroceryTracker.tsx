@@ -183,7 +183,7 @@ export default function GroceryTracker() {
                         type="text"
                         value={form.name}
                         onChange={(e) => setForm({...form, name: e.target.value})}
-                        className="w-full p-2 border border-zinc-500 rounded-lg dark:bg-zinc-900 dark:text-white"
+                        className="w-full p-2 border border-zinc-500 rounded-lg bg-zinc-100 dark:bg-zinc-900 dark:text-white"
                     />
                 </div>
                 <div className="mb-2">
@@ -192,7 +192,7 @@ export default function GroceryTracker() {
                         type="number"
                         value={form.cost}
                         onChange={(e) => setForm({...form, cost: e.target.value})}
-                        className="w-full p-2 border border-zinc-500 rounded-lg dark:bg-zinc-900 dark:text-white"
+                        className="w-full p-2 border border-zinc-500 rounded-lg bg-zinc-100 dark:bg-zinc-900 dark:text-white"
                     />
                 </div>
                 <div className="mb-2">
@@ -201,7 +201,7 @@ export default function GroceryTracker() {
                         type="number"
                         value={form.quantity}
                         onChange={(e) => setForm({...form, quantity: e.target.value})}
-                        className="w-full p-2 border border-zinc-500 rounded-lg dark:bg-zinc-900 dark:text-white"
+                        className="w-full p-2 border border-zinc-500 rounded-lg bg-zinc-100 dark:bg-zinc-900 dark:text-white"
                     />
                 </div>
                 <div className="mb-2">
@@ -210,7 +210,7 @@ export default function GroceryTracker() {
                         type="date"
                         value={form.expiry}
                         onChange={(e) => setForm({...form, expiry: e.target.value})}
-                        className="w-full p-2 border border-zinc-500 rounded-lg dark:bg-zinc-900 dark:text-white"
+                        className="w-full p-2 border border-zinc-500 rounded-lg bg-zinc-100 dark:bg-zinc-900 dark:text-white"
                     />
                 </div>
 
@@ -237,7 +237,7 @@ export default function GroceryTracker() {
                 <h2 className="text-xl font-semibold mb-2">Items</h2>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {items.map(item => (
-                        <div key={item.id} className="border-b p-4 rounded shadow dark:bg-zinc-900">
+                        <div key={item.id} className="p-4 rounded shadow bg-zinc-200 dark:bg-zinc-900">
                             <div className="font-bold">{item.name}</div>
                             <div>Cost: ${item.cost}</div>
                             <div>Quantity: {item.quantity}</div>
@@ -250,20 +250,28 @@ export default function GroceryTracker() {
                     ))}
                 </div>
             </div>
-            <div className="mt-4">
-                <h2 className="text-xl font-semibold mb-2">Monthly Totals</h2>
-                <ul>
-                    {Object.keys(monthlyTotals).map(month => (
-                        <li key={month} className="border p-2 mb-2 rounded-md text-red-600 font-semibold">
-                            {month}: ${monthlyTotals[month].toFixed(2)}
-                        </li>
-                    ))}
-                </ul>
+            <div className="mt-8 flex justify-between items-start">
+                <div className="w-1/2 pr-4">
+                    <h2 className="text-2xl font-semibold mb-2 underline ml-2">Monthly Totals</h2>
+                    <ul>
+                        {Object.keys(monthlyTotals).map(month => {
+                            const date = new Date(month);
+                            const formattedDate = date.toLocaleString('default', {month: 'long', year: 'numeric'});
+                            return (
+                                <li key={month} className="p-2 mb-2 rounded-md text-xl">
+                                    <span>{formattedDate}: </span>
+                                    <span className="text-red-600">${monthlyTotals[month].toFixed(2)}</span>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                </div>
+                <div className="w-1/2 pl-4">
+                    <h2 className="text-xl font-semibold mb-2">Total Stock</h2>
+                    <p>{totalStock}</p>
+                </div>
             </div>
-            <div className="mt-4">
-                <h2 className="text-xl font-semibold mb-2">Total Stock</h2>
-                <p>{totalStock}</p>
-            </div>
+
         </div>
     );
 }
