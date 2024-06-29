@@ -174,7 +174,7 @@ export default function GroceryTracker() {
             )}
             {isLoading && <div
                 className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-opacity-50 bg-gray-500">Loading...</div>}
-            <h1 className="text-2xl font-bold mb-4">Grocery Tracker</h1>
+            <h1 className="text-3xl font-bold mb-4 uppercase">Grocery Tracker</h1>
             <form onSubmit={addItem} className="grid gap-4 mb-4 md:grid-cols-2">
                 {error && <div className="col-span-2 mb-2 text-red-600">{error}</div>}
                 <div className="mb-2">
@@ -183,7 +183,7 @@ export default function GroceryTracker() {
                         type="text"
                         value={form.name}
                         onChange={(e) => setForm({...form, name: e.target.value})}
-                        className="w-full p-2 border dark:bg-zinc-900 dark:text-white"
+                        className="w-full p-2 border border-zinc-500 rounded-lg dark:bg-zinc-900 dark:text-white"
                     />
                 </div>
                 <div className="mb-2">
@@ -192,7 +192,7 @@ export default function GroceryTracker() {
                         type="number"
                         value={form.cost}
                         onChange={(e) => setForm({...form, cost: e.target.value})}
-                        className="w-full p-2 border dark:bg-zinc-900 dark:text-white"
+                        className="w-full p-2 border border-zinc-500 rounded-lg dark:bg-zinc-900 dark:text-white"
                     />
                 </div>
                 <div className="mb-2">
@@ -201,7 +201,7 @@ export default function GroceryTracker() {
                         type="number"
                         value={form.quantity}
                         onChange={(e) => setForm({...form, quantity: e.target.value})}
-                        className="w-full p-2 border dark:bg-zinc-900 dark:text-white"
+                        className="w-full p-2 border border-zinc-500 rounded-lg dark:bg-zinc-900 dark:text-white"
                     />
                 </div>
                 <div className="mb-2">
@@ -210,25 +210,34 @@ export default function GroceryTracker() {
                         type="date"
                         value={form.expiry}
                         onChange={(e) => setForm({...form, expiry: e.target.value})}
-                        className="w-full p-2 border dark:bg-zinc-900 dark:text-white"
+                        className="w-full p-2 border border-zinc-500 rounded-lg dark:bg-zinc-900 dark:text-white"
                     />
                 </div>
+
                 <button type="submit"
-                        className="col-span-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+                        className="px-8 py-2 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 text-white focus:ring-2 focus:ring-blue-400 hover:shadow-xl transition duration-200">
                     {editingItemId !== null ? 'Update Item' : 'Add Item'}
                 </button>
             </form>
+
             <div className="flex justify-between mb-4">
                 <button onClick={exportToCSV}
-                        className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">Export to CSV
+                        className="px-4 py-2 rounded-full bg-[#1ED760] font-bold text-white tracking-widest uppercase transform hover:scale-105 hover:bg-[#21e065] transition-colors duration-200">
+                    Export to CSV
                 </button>
-                <input type="file" accept=".csv" onChange={importFromCSV} className="border p-2 rounded-md"/>
+                <label
+                    className="shadow-[inset_0_0_0_2px_#616467] text-black px-4 py-3 rounded-full tracking-widest uppercase font-bold bg-transparent hover:bg-[#616467] hover:text-white dark:text-neutral-200 transition duration-200">
+                    Import from CSV
+                    <input type="file" accept=".csv" onChange={importFromCSV} className="hidden"/>
+                </label>
             </div>
+
+
             <div>
                 <h2 className="text-xl font-semibold mb-2">Items</h2>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {items.map(item => (
-                        <div key={item.id} className="border p-4 rounded-md shadow-md dark:bg-zinc-900">
+                        <div key={item.id} className="border-b p-4 rounded shadow dark:bg-zinc-900">
                             <div className="font-bold">{item.name}</div>
                             <div>Cost: ${item.cost}</div>
                             <div>Quantity: {item.quantity}</div>
