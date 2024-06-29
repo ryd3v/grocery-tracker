@@ -14,6 +14,7 @@ interface Item {
 export default function GroceryTracker() {
     const [items, setItems] = useState<Item[]>([]);
     const [form, setForm] = useState({name: '', cost: '', quantity: '', expiry: ''});
+    const [editingItemId, setEditingItemId] = useState<number | null>(null);
     const [monthlyTotals, setMonthlyTotals] = useState<{ [key: string]: number }>({});
     const [totalStock, setTotalStock] = useState<number>(0);
     const [error, setError] = useState<string>('');
@@ -59,21 +60,56 @@ export default function GroceryTracker() {
             return;
         }
 
-        const newItem = {
-            id: Date.now(),
-            name: form.name,
-            cost: parseFloat(form.cost),
-            quantity: parseInt(form.quantity),
-            expiry: form.expiry,
-            dateAdded: new Date().toISOString().slice(0, 10), // Format: YYYY-MM-DD
-        };
-        const updatedItems = [...items, newItem];
+        if (editingItemId !== null) {
+            const updatedItems = items.map(item =>
+                item.id === editingItemId ? {
+                    ...item, ...form,
+                    cost: parseFloat(form.cost),
+                    quantity: parseInt(form.quantity)
+                } : item
+            );
+            setItems(updatedItems);
+            localStorage.setItem('grocery-items', JSON.stringify(updatedItems));
+            setEditingItemId(null);
+        } else {
+            const newItem = {
+                id: Date.now(),
+                name: form.name,
+                cost: parseFloat(form.cost),
+                quantity: parseInt(form.quantity),
+                expiry: form.expiry,
+                dateAdded: new Date().toISOString().slice(0, 10), // Format: YYYY-MM-DD
+            };
+            const updatedItems = [...items, newItem];
+            setItems(updatedItems);
+            localStorage.setItem('grocery-items', JSON.stringify(updatedItems));
+        }
+
+        calculateMonthlyTotals(items);
+        calculateTotalStock(items);
+        setForm({name: '', cost: '', quantity: '', expiry: ''});
+        setError('');
+    };
+
+    const editItem = (id: number) => {
+        const itemToEdit = items.find(item => item.id === id);
+        if (itemToEdit) {
+            setForm({
+                name: itemToEdit.name,
+                cost: itemToEdit.cost.toString(),
+                quantity: itemToEdit.quantity.toString(),
+                expiry: itemToEdit.expiry
+            });
+            setEditingItemId(id);
+        }
+    };
+
+    const deleteItem = (id: number) => {
+        const updatedItems = items.filter(item => item.id !== id);
         setItems(updatedItems);
         localStorage.setItem('grocery-items', JSON.stringify(updatedItems));
         calculateMonthlyTotals(updatedItems);
         calculateTotalStock(updatedItems);
-        setForm({name: '', cost: '', quantity: '', expiry: ''});
-        setError('');
     };
 
     return (
@@ -117,7 +153,8 @@ export default function GroceryTracker() {
                         className="w-full p-2 border dark:bg-zinc-900 dark:text-white"
                     />
                 </div>
-                <button type="submit" className="bg-blue-500 text-white px-4 py-2">Add Item</button>
+                <button type="submit"
+                        className="bg-blue-500 text-white px-4 py-2">{editingItemId !== null ? 'Update Item' : 'Add Item'}</button>
             </form>
             <div>
                 <h2 className="text-xl font-semibold mb-2">Items</h2>
@@ -125,6 +162,8 @@ export default function GroceryTracker() {
                     {items.map(item => (
                         <li key={item.id} className="border p-2 mb-2">
                             {item.name} - ${item.cost} - {item.quantity} - {item.expiry}
+                            <button onClick={() => editItem(item.id)} className="ml-2 text-blue-500">Edit</button>
+                            <button onClick={() => deleteItem(item.id)} className="ml-2 text-red-500">Delete</button>
                         </li>
                     ))}
                 </ul>
