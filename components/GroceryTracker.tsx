@@ -15,6 +15,7 @@ export default function GroceryTracker() {
     const [items, setItems] = useState<Item[]>([]);
     const [form, setForm] = useState({name: '', cost: '', quantity: '', expiry: ''});
     const [monthlyTotals, setMonthlyTotals] = useState<{ [key: string]: number }>({});
+    const [totalStock, setTotalStock] = useState<number>(0);
 
     useEffect(() => {
         const storedItems = localStorage.getItem('grocery-items');
@@ -25,6 +26,7 @@ export default function GroceryTracker() {
             }));
             setItems(parsedItems);
             calculateMonthlyTotals(parsedItems);
+            calculateTotalStock(parsedItems);
         }
     }, []);
 
@@ -38,6 +40,11 @@ export default function GroceryTracker() {
             totals[month] += item.cost;
         });
         setMonthlyTotals(totals);
+    };
+
+    const calculateTotalStock = (items: Item[]) => {
+        const stock = items.reduce((total, item) => total + item.quantity, 0);
+        setTotalStock(stock);
     };
 
     const addItem = (e: FormEvent) => {
@@ -54,6 +61,7 @@ export default function GroceryTracker() {
         setItems(updatedItems);
         localStorage.setItem('grocery-items', JSON.stringify(updatedItems));
         calculateMonthlyTotals(updatedItems);
+        calculateTotalStock(updatedItems);
         setForm({name: '', cost: '', quantity: '', expiry: ''});
     };
 
@@ -67,7 +75,7 @@ export default function GroceryTracker() {
                         type="text"
                         value={form.name}
                         onChange={(e) => setForm({...form, name: e.target.value})}
-                        className="w-full p-2 border"
+                        className="w-full p-2 border dark:bg-zinc-900 dark:text-white"
                     />
                 </div>
                 <div className="mb-2">
@@ -76,7 +84,7 @@ export default function GroceryTracker() {
                         type="number"
                         value={form.cost}
                         onChange={(e) => setForm({...form, cost: e.target.value})}
-                        className="w-full p-2 border"
+                        className="w-full p-2 border dark:bg-zinc-900 dark:text-white"
                     />
                 </div>
                 <div className="mb-2">
@@ -85,7 +93,7 @@ export default function GroceryTracker() {
                         type="number"
                         value={form.quantity}
                         onChange={(e) => setForm({...form, quantity: e.target.value})}
-                        className="w-full p-2 border"
+                        className="w-full p-2 border dark:bg-zinc-900 dark:text-white"
                     />
                 </div>
                 <div className="mb-2">
@@ -94,7 +102,7 @@ export default function GroceryTracker() {
                         type="date"
                         value={form.expiry}
                         onChange={(e) => setForm({...form, expiry: e.target.value})}
-                        className="w-full p-2 border"
+                        className="w-full p-2 border dark:bg-zinc-900 dark:text-white"
                     />
                 </div>
                 <button type="submit" className="bg-blue-500 text-white px-4 py-2">Add Item</button>
@@ -118,6 +126,10 @@ export default function GroceryTracker() {
                         </li>
                     ))}
                 </ul>
+            </div>
+            <div>
+                <h2 className="text-xl font-semibold mb-2">Total Stock</h2>
+                <p>{totalStock}</p>
             </div>
         </div>
     );
