@@ -1,6 +1,6 @@
-'use client'; // This directive makes the component a Client Component
+'use client';
 
-import {FormEvent, useState} from 'react';
+import {FormEvent, useEffect, useState} from 'react';
 
 interface Item {
     id: number;
@@ -8,21 +8,52 @@ interface Item {
     cost: number;
     quantity: number;
     expiry: string;
+    dateAdded: string;
 }
 
 export default function GroceryTracker() {
     const [items, setItems] = useState<Item[]>([]);
     const [form, setForm] = useState({name: '', cost: '', quantity: '', expiry: ''});
+    const [monthlyTotals, setMonthlyTotals] = useState<{ [key: string]: number }>({});
+
+    useEffect(() => {
+        const storedItems = localStorage.getItem('grocery-items');
+        if (storedItems) {
+            const parsedItems: Item[] = JSON.parse(storedItems).map((item: Item) => ({
+                ...item,
+                dateAdded: item.dateAdded || new Date().toISOString().slice(0, 10), // Ensure dateAdded is set
+            }));
+            setItems(parsedItems);
+            calculateMonthlyTotals(parsedItems);
+        }
+    }, []);
+
+    const calculateMonthlyTotals = (items: Item[]) => {
+        const totals: { [key: string]: number } = {};
+        items.forEach(item => {
+            const month = item.dateAdded.slice(0, 7); // Format: YYYY-MM
+            if (!totals[month]) {
+                totals[month] = 0;
+            }
+            totals[month] += item.cost;
+        });
+        setMonthlyTotals(totals);
+    };
 
     const addItem = (e: FormEvent) => {
         e.preventDefault();
-        setItems([...items, {
+        const newItem = {
             id: Date.now(),
             name: form.name,
             cost: parseFloat(form.cost),
             quantity: parseInt(form.quantity),
-            expiry: form.expiry
-        }]);
+            expiry: form.expiry,
+            dateAdded: new Date().toISOString().slice(0, 10) // Format: YYYY-MM-DD
+        };
+        const updatedItems = [...items, newItem];
+        setItems(updatedItems);
+        localStorage.setItem('grocery-items', JSON.stringify(updatedItems));
+        calculateMonthlyTotals(updatedItems);
         setForm({name: '', cost: '', quantity: '', expiry: ''});
     };
 
@@ -74,6 +105,16 @@ export default function GroceryTracker() {
                     {items.map(item => (
                         <li key={item.id} className="border p-2 mb-2">
                             {item.name} - ${item.cost} - {item.quantity} - {item.expiry}
+                        </li>
+                    ))}
+                </ul>
+            </div>
+            <div>
+                <h2 className="text-xl font-semibold mb-2">Monthly Totals</h2>
+                <ul>
+                    {Object.keys(monthlyTotals).map(month => (
+                        <li key={month} className="border p-2 mb-2">
+                            {month}: ${monthlyTotals[month].toFixed(2)}
                         </li>
                     ))}
                 </ul>
