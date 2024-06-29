@@ -26,7 +26,7 @@ import data as CSV files. Built with Next.js, Tailwind CSS, and TypeScript.
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-username/grocery-tracker.git
+   git clone https://github.com/ryd3v/grocery-tracker.git
    cd grocery-tracker
    ```
 
