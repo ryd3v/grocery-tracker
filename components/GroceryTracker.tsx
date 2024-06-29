@@ -20,6 +20,11 @@ export default function GroceryTracker() {
     const [monthlyTotals, setMonthlyTotals] = useState<{ [key: string]: number }>({});
     const [totalStock, setTotalStock] = useState<number>(0);
     const [error, setError] = useState<string>('');
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [notification, setNotification] = useState<{
+        message: string;
+        type: 'success' | 'error' | null
+    }>({message: '', type: null});
 
     useEffect(() => {
         const storedItems = localStorage.getItem('grocery-items');
@@ -73,6 +78,7 @@ export default function GroceryTracker() {
             setItems(updatedItems);
             localStorage.setItem('grocery-items', JSON.stringify(updatedItems));
             setEditingItemId(null);
+            setNotification({message: 'Item updated successfully', type: 'success'});
         } else {
             const newItem = {
                 id: Date.now(),
@@ -85,6 +91,7 @@ export default function GroceryTracker() {
             const updatedItems = [...items, newItem];
             setItems(updatedItems);
             localStorage.setItem('grocery-items', JSON.stringify(updatedItems));
+            setNotification({message: 'Item added successfully', type: 'success'});
         }
 
         calculateMonthlyTotals(items);
@@ -107,11 +114,13 @@ export default function GroceryTracker() {
     };
 
     const deleteItem = (id: number) => {
-        const updatedItems = items.filter(item => item.id !== id);
-        setItems(updatedItems);
-        localStorage.setItem('grocery-items', JSON.stringify(updatedItems));
-        calculateMonthlyTotals(updatedItems);
-        calculateTotalStock(updatedItems);
+        if (confirm('Are you sure you want to delete this item?')) {
+            const updatedItems = items.filter(item => item.id !== id);
+            setItems(updatedItems);
+            localStorage.setItem('grocery-items', JSON.stringify(updatedItems));
+            calculateMonthlyTotals(updatedItems);
+            calculateTotalStock(updatedItems);
+        }
     };
 
     // Function to convert items to CSV format
@@ -132,6 +141,7 @@ export default function GroceryTracker() {
     const importFromCSV = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
+            setIsLoading(true);
             const reader = new FileReader();
             reader.onload = (e) => {
                 const text = e.target?.result?.toString();
@@ -146,7 +156,9 @@ export default function GroceryTracker() {
                     localStorage.setItem('grocery-items', JSON.stringify([...items, ...newItems]));
                     calculateMonthlyTotals([...items, ...newItems]);
                     calculateTotalStock([...items, ...newItems]);
+                    setNotification({message: 'Items imported successfully', type: 'success'});
                 }
+                setIsLoading(false);
             };
             reader.readAsText(file);
         }
@@ -154,9 +166,17 @@ export default function GroceryTracker() {
 
     return (
         <div className="container mx-auto p-4">
+            {notification.type && (
+                <div
+                    className={`fixed top-4 right-4 p-4 rounded-md ${notification.type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white`}>
+                    {notification.message}
+                </div>
+            )}
+            {isLoading && <div
+                className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-opacity-50 bg-gray-500">Loading...</div>}
             <h1 className="text-2xl font-bold mb-4">Grocery Tracker</h1>
-            <form onSubmit={addItem} className="mb-4">
-                {error && <div className="mb-2 text-red-600">{error}</div>}
+            <form onSubmit={addItem} className="grid gap-4 mb-4 md:grid-cols-2">
+                {error && <div className="col-span-2 mb-2 text-red-600">{error}</div>}
                 <div className="mb-2">
                     <label className="block text-sm font-medium">Name</label>
                     <input
@@ -194,35 +214,44 @@ export default function GroceryTracker() {
                     />
                 </div>
                 <button type="submit"
-                        className="bg-blue-500 text-white px-4 py-2">{editingItemId !== null ? 'Update Item' : 'Add Item'}</button>
+                        className="col-span-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+                    {editingItemId !== null ? 'Update Item' : 'Add Item'}
+                </button>
             </form>
-            <div>
-                <button onClick={exportToCSV} className="bg-green-500 text-white px-4 py-2 mb-4">Export to CSV</button>
-                <input type="file" accept=".csv" onChange={importFromCSV} className="mb-4"/>
+            <div className="flex justify-between mb-4">
+                <button onClick={exportToCSV}
+                        className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">Export to CSV
+                </button>
+                <input type="file" accept=".csv" onChange={importFromCSV} className="border p-2 rounded-md"/>
             </div>
             <div>
                 <h2 className="text-xl font-semibold mb-2">Items</h2>
-                <ul>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {items.map(item => (
-                        <li key={item.id} className="border p-2 mb-2">
-                            {item.name} - ${item.cost} - {item.quantity} - {item.expiry}
-                            <button onClick={() => editItem(item.id)} className="ml-2 text-blue-500">Edit</button>
-                            <button onClick={() => deleteItem(item.id)} className="ml-2 text-red-500">Delete</button>
-                        </li>
+                        <div key={item.id} className="border p-4 rounded-md shadow-md dark:bg-zinc-900">
+                            <div className="font-bold">{item.name}</div>
+                            <div>Cost: ${item.cost}</div>
+                            <div>Quantity: {item.quantity}</div>
+                            <div>Expiry: {item.expiry}</div>
+                            <div className="mt-2">
+                                <button onClick={() => editItem(item.id)} className="mr-2 text-blue-500">Edit</button>
+                                <button onClick={() => deleteItem(item.id)} className="text-red-500">Delete</button>
+                            </div>
+                        </div>
                     ))}
-                </ul>
+                </div>
             </div>
-            <div>
+            <div className="mt-4">
                 <h2 className="text-xl font-semibold mb-2">Monthly Totals</h2>
                 <ul>
                     {Object.keys(monthlyTotals).map(month => (
-                        <li key={month} className="border p-2 mb-2 text-red-600 font-semibold">
+                        <li key={month} className="border p-2 mb-2 rounded-md text-red-600 font-semibold">
                             {month}: ${monthlyTotals[month].toFixed(2)}
                         </li>
                     ))}
                 </ul>
             </div>
-            <div>
+            <div className="mt-4">
                 <h2 className="text-xl font-semibold mb-2">Total Stock</h2>
                 <p>{totalStock}</p>
             </div>
