@@ -121,7 +121,7 @@ export default function GroceryTracker() {
                 <h2 className="text-xl font-semibold mb-2">Monthly Totals</h2>
                 <ul>
                     {Object.keys(monthlyTotals).map(month => (
-                        <li key={month} className="border p-2 mb-2">
+                        <li key={month} className="border p-2 mb-2 text-red-600 font-semibold">
                             {month}: ${monthlyTotals[month].toFixed(2)}
                         </li>
                     ))}
