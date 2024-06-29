@@ -3,6 +3,10 @@
 import {FormEvent, useEffect, useState} from 'react';
 import {saveAs} from 'file-saver';
 import {parse} from 'papaparse';
+import {Bar} from 'react-chartjs-2';
+import {BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip} from 'chart.js';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 interface Item {
     id: number;
@@ -164,6 +168,31 @@ export default function GroceryTracker() {
         }
     };
 
+    const chartData = {
+        labels: Object.keys(monthlyTotals).map(month => {
+            const date = new Date(month);
+            return date.toLocaleString('default', {month: 'long', year: 'numeric'});
+        }),
+        datasets: [
+            {
+                label: 'Monthly Expenses',
+                data: Object.values(monthlyTotals),
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
+            },
+        ],
+    };
+
+    const chartOptions = {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+            },
+        },
+    };
+
     return (
         <div className="container mx-auto p-4">
             {notification.type && (
@@ -232,19 +261,20 @@ export default function GroceryTracker() {
                 </label>
             </div>
 
-
             <div>
                 <h2 className="text-xl font-semibold mb-2">Items</h2>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {items.map(item => (
                         <div key={item.id} className="p-4 rounded shadow bg-zinc-200 dark:bg-zinc-900">
-                            <div className="font-bold">{item.name}</div>
+                            <div className="font-bold text-lg">{item.name}</div>
                             <div>Cost: ${item.cost}</div>
                             <div>Quantity: {item.quantity}</div>
                             <div>Expiry: {item.expiry}</div>
                             <div className="mt-2">
-                                <button onClick={() => editItem(item.id)} className="mr-2 text-blue-500">Edit</button>
-                                <button onClick={() => deleteItem(item.id)} className="text-red-500">Delete</button>
+                                <button onClick={() => editItem(item.id)} className="text-sm mr-2 text-blue-500">Edit
+                                </button>
+                                <button onClick={() => deleteItem(item.id)} className="text-sm text-red-500">Delete
+                                </button>
                             </div>
                         </div>
                     ))}
@@ -271,7 +301,10 @@ export default function GroceryTracker() {
                     <p>{totalStock}</p>
                 </div>
             </div>
-
+            <div className="py-8">
+                <h2 className="text-2xl font-semibold mb-4">Monthly Expenses Chart</h2>
+                <Bar data={chartData} options={chartOptions}/>
+            </div>
         </div>
     );
 }
