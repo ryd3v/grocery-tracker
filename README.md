@@ -3,6 +3,8 @@
 A simple web application to track grocery purchases, costs, quantities, and expiry, with functionalities to export and
 import data as CSV files. Built with Next.js, Tailwind CSS, and TypeScript.
 
+![ALT](assets/Screenshot.png)
+
 ## Features
 
 - Add, edit, and delete grocery items.
