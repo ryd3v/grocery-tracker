@@ -4,6 +4,7 @@ A simple web application to track grocery purchases, costs, quantities, and expi
 import data as CSV files. Built with Next.js, Tailwind CSS, and TypeScript.
 
 ![ALT](assets/Screenshot.png)
+![ALT](assets/Screenshot2.png)
 
 ## Features
 
