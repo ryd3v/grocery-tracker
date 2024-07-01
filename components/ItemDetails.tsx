@@ -35,7 +35,7 @@ const ItemDetails: React.FC<ItemDetailsProps> = ({ item, onSave }) => {
     return (
         <div className="container mx-auto p-4 min-h-screen flex flex-col">
             <h2 className="text-2xl font-bold mb-4">Item Details</h2>
-            <div className="flex-grow">
+            <div>
                 <div className="mb-2">
                     <label className="block text-sm font-medium">Serving Size</label>
                     <input
@@ -97,12 +97,15 @@ const ItemDetails: React.FC<ItemDetailsProps> = ({ item, onSave }) => {
                     />
                 </div>
             </div>
-            <button
-                onClick={handleSave}
-                className="mt-4 px-8 py-2 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 text-white focus:ring-2 focus:ring-blue-400 hover:shadow-xl transition duration-200 self-start"
-            >
-                Save
-            </button>
+            <div className='max-w-6 mt-4'>
+                <button
+                    onClick={handleSave}
+                    className="shadow-[0_4px_14px_0_rgb(0,118,255,39%)] hover:shadow-[0_6px_20px_rgba(0,118,255,23%)] hover:bg-[rgba(0,118,255,0.9)] px-4 py-2 bg-[#0070f3] rounded-md text-white font-light transition duration-200 ease-linear"
+                >
+                    Save
+                </button>
+            </div>
+
         </div>
     );
 };
