@@ -217,7 +217,7 @@ export default function GroceryTracker() {
                     <input
                         type="text"
                         value={form.name}
-                        onChange={(e) => setForm({ ...form, name: e.target.value })}
+                        onChange={(e) => setForm({...form, name: e.target.value})}
                         className="w-full p-2 border border-zinc-500 rounded-lg bg-zinc-100 dark:bg-zinc-900 dark:text-white"
                     />
                 </div>
@@ -226,7 +226,7 @@ export default function GroceryTracker() {
                     <input
                         type="number"
                         value={form.cost}
-                        onChange={(e) => setForm({ ...form, cost: e.target.value })}
+                        onChange={(e) => setForm({...form, cost: e.target.value})}
                         className="w-full p-2 border border-zinc-500 rounded-lg bg-zinc-100 dark:bg-zinc-900 dark:text-white"
                     />
                 </div>
@@ -235,7 +235,7 @@ export default function GroceryTracker() {
                     <input
                         type="number"
                         value={form.quantity}
-                        onChange={(e) => setForm({ ...form, quantity: e.target.value })}
+                        onChange={(e) => setForm({...form, quantity: e.target.value})}
                         className="w-full p-2 border border-zinc-500 rounded-lg bg-zinc-100 dark:bg-zinc-900 dark:text-white"
                     />
                 </div>
@@ -244,26 +244,27 @@ export default function GroceryTracker() {
                     <input
                         type="date"
                         value={form.expiry}
-                        onChange={(e) => setForm({ ...form, expiry: e.target.value })}
+                        onChange={(e) => setForm({...form, expiry: e.target.value})}
                         className="w-full p-2 border border-zinc-500 rounded-lg bg-zinc-100 dark:bg-zinc-900 dark:text-white"
                     />
                 </div>
 
                 <button type="submit"
-                        className="px-8 py-2 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 text-white focus:ring-2 focus:ring-blue-400 hover:shadow-xl transition duration-200">
+                        className="px-8 py-2  bg-black text-white text-sm rounded-md font-semibold hover:bg-black/[0.8] hover:shadow-lg">
                     {editingItemId !== null ? 'Update Item' : 'Add Item'}
                 </button>
             </form>
 
             <div className="flex justify-between mb-4">
                 <button onClick={exportToCSV}
-                        className="px-4 py-2 rounded-full bg-[#1ED760] font-bold text-white tracking-widest uppercase transform hover:scale-105 hover:bg-[#21e065] transition-colors duration-200">
+                        className="shadow-[0_4px_14px_0_rgb(0,118,255,39%)] hover:shadow-[0_6px_20px_rgba(0,118,255,23%)] hover:bg-[rgba(0,118,255,0.9)] px-8 py-2 bg-[#0070f3] rounded-md text-white font-light transition duration-200 ease-linear">
                     Export to CSV
                 </button>
+
                 <label
-                    className="shadow-[inset_0_0_0_2px_#616467] text-black px-4 py-3 rounded-full tracking-widest uppercase font-bold bg-transparent hover:bg-[#616467] hover:text-white dark:text-neutral-200 transition duration-200">
+                    className="shadow-[0_4px_14px_0_rgb(0,0,0,10%)] hover:shadow-[0_6px_20px_rgba(93,93,93,23%)] px-8 py-2 bg-[#fff] text-[#696969] rounded-md font-light transition duration-200 ease-linear cursor-pointer">
                     Import from CSV
-                    <input type="file" accept=".csv" onChange={importFromCSV} className="hidden" />
+                    <input type="file" accept=".csv" onChange={importFromCSV} className="hidden"/>
                 </label>
             </div>
 
