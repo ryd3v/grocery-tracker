@@ -1,4 +1,5 @@
 import Navbar from './Navbar';
+import Footer from "@/components/Footer";
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
     return (
@@ -7,6 +8,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <main className="flex-grow container mx-auto p-4">
                 {children}
             </main>
+            <Footer/>
         </div>
     );
 };
