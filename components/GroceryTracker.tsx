@@ -1,10 +1,11 @@
-'use client';
+"use client";
 
-import {FormEvent, useEffect, useState} from 'react';
-import {saveAs} from 'file-saver';
-import {parse} from 'papaparse';
-import {Bar} from 'react-chartjs-2';
-import {BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip} from 'chart.js';
+import { useRouter } from 'next/navigation';
+import { FormEvent, useEffect, useState } from 'react';
+import { saveAs } from 'file-saver';
+import { parse } from 'papaparse';
+import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -15,20 +16,25 @@ interface Item {
     quantity: number;
     expiry: string;
     dateAdded: string;
+    servingSize?: string;
+    calories?: number;
+    fat?: number;
+    carbohydrates?: number;
+    protein?: number;
+    sodium?: number;
 }
 
 export default function GroceryTracker() {
     const [items, setItems] = useState<Item[]>([]);
-    const [form, setForm] = useState({name: '', cost: '', quantity: '', expiry: ''});
+    const [form, setForm] = useState({ name: '', cost: '', quantity: '', expiry: '' });
     const [editingItemId, setEditingItemId] = useState<number | null>(null);
     const [monthlyTotals, setMonthlyTotals] = useState<{ [key: string]: number }>({});
     const [totalStock, setTotalStock] = useState<number>(0);
     const [error, setError] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [notification, setNotification] = useState<{
-        message: string;
-        type: 'success' | 'error' | null
-    }>({message: '', type: null});
+    const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' | null }>({ message: '', type: null });
+
+    const router = useRouter();
 
     useEffect(() => {
         const storedItems = localStorage.getItem('grocery-items');
@@ -82,7 +88,7 @@ export default function GroceryTracker() {
             setItems(updatedItems);
             localStorage.setItem('grocery-items', JSON.stringify(updatedItems));
             setEditingItemId(null);
-            setNotification({message: 'Item updated successfully', type: 'success'});
+            setNotification({ message: 'Item updated successfully', type: 'success' });
         } else {
             const newItem = {
                 id: Date.now(),
@@ -95,12 +101,12 @@ export default function GroceryTracker() {
             const updatedItems = [...items, newItem];
             setItems(updatedItems);
             localStorage.setItem('grocery-items', JSON.stringify(updatedItems));
-            setNotification({message: 'Item added successfully', type: 'success'});
+            setNotification({ message: 'Item added successfully', type: 'success' });
         }
 
         calculateMonthlyTotals(items);
         calculateTotalStock(items);
-        setForm({name: '', cost: '', quantity: '', expiry: ''});
+        setForm({ name: '', cost: '', quantity: '', expiry: '' });
         setError('');
     };
 
@@ -127,21 +133,22 @@ export default function GroceryTracker() {
         }
     };
 
-    // Function to convert items to CSV format
+    const viewItemDetails = (id: number) => {
+        router.push(`/item/${id}`);
+    };
+
     const convertToCSV = (items: Item[]) => {
-        const header = "id,name,cost,quantity,expiry,dateAdded\n";
-        const rows = items.map(item => `${item.id},${item.name},${item.cost},${item.quantity},${item.expiry},${item.dateAdded}`).join("\n");
+        const header = "id,name,cost,quantity,expiry,dateAdded,servingSize,calories,fat,carbohydrates,protein,sodium\n";
+        const rows = items.map(item => `${item.id},${item.name},${item.cost},${item.quantity},${item.expiry},${item.dateAdded},${item.servingSize || ''},${item.calories || ''},${item.fat || ''},${item.carbohydrates || ''},${item.protein || ''},${item.sodium || ''}`).join("\n");
         return header + rows;
     };
 
-    // Function to export items to a CSV file
     const exportToCSV = () => {
         const csvData = convertToCSV(items);
-        const blob = new Blob([csvData], {type: 'text/csv;charset=utf-8;'});
+        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
         saveAs(blob, 'grocery_data.csv');
     };
 
-    // Function to import items from a CSV file
     const importFromCSV = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
@@ -150,7 +157,7 @@ export default function GroceryTracker() {
             reader.onload = (e) => {
                 const text = e.target?.result?.toString();
                 if (text) {
-                    const result = parse<Item>(text, {header: true, dynamicTyping: true});
+                    const result = parse<Item>(text, { header: true, dynamicTyping: true });
                     const newItems = result.data.map(item => ({
                         ...item,
                         id: item.id || Date.now(),
@@ -160,7 +167,7 @@ export default function GroceryTracker() {
                     localStorage.setItem('grocery-items', JSON.stringify([...items, ...newItems]));
                     calculateMonthlyTotals([...items, ...newItems]);
                     calculateTotalStock([...items, ...newItems]);
-                    setNotification({message: 'Items imported successfully', type: 'success'});
+                    setNotification({ message: 'Items imported successfully', type: 'success' });
                 }
                 setIsLoading(false);
             };
@@ -171,7 +178,7 @@ export default function GroceryTracker() {
     const chartData = {
         labels: Object.keys(monthlyTotals).map(month => {
             const date = new Date(month);
-            return date.toLocaleString('default', {month: 'long', year: 'numeric'});
+            return date.toLocaleString('default', { month: 'long', year: 'numeric' });
         }),
         datasets: [
             {
@@ -211,7 +218,7 @@ export default function GroceryTracker() {
                     <input
                         type="text"
                         value={form.name}
-                        onChange={(e) => setForm({...form, name: e.target.value})}
+                        onChange={(e) => setForm({ ...form, name: e.target.value })}
                         className="w-full p-2 border border-zinc-500 rounded-lg bg-zinc-100 dark:bg-zinc-900 dark:text-white"
                     />
                 </div>
@@ -220,7 +227,7 @@ export default function GroceryTracker() {
                     <input
                         type="number"
                         value={form.cost}
-                        onChange={(e) => setForm({...form, cost: e.target.value})}
+                        onChange={(e) => setForm({ ...form, cost: e.target.value })}
                         className="w-full p-2 border border-zinc-500 rounded-lg bg-zinc-100 dark:bg-zinc-900 dark:text-white"
                     />
                 </div>
@@ -229,7 +236,7 @@ export default function GroceryTracker() {
                     <input
                         type="number"
                         value={form.quantity}
-                        onChange={(e) => setForm({...form, quantity: e.target.value})}
+                        onChange={(e) => setForm({ ...form, quantity: e.target.value })}
                         className="w-full p-2 border border-zinc-500 rounded-lg bg-zinc-100 dark:bg-zinc-900 dark:text-white"
                     />
                 </div>
@@ -238,7 +245,7 @@ export default function GroceryTracker() {
                     <input
                         type="date"
                         value={form.expiry}
-                        onChange={(e) => setForm({...form, expiry: e.target.value})}
+                        onChange={(e) => setForm({ ...form, expiry: e.target.value })}
                         className="w-full p-2 border border-zinc-500 rounded-lg bg-zinc-100 dark:bg-zinc-900 dark:text-white"
                     />
                 </div>
@@ -257,7 +264,7 @@ export default function GroceryTracker() {
                 <label
                     className="shadow-[inset_0_0_0_2px_#616467] text-black px-4 py-3 rounded-full tracking-widest uppercase font-bold bg-transparent hover:bg-[#616467] hover:text-white dark:text-neutral-200 transition duration-200">
                     Import from CSV
-                    <input type="file" accept=".csv" onChange={importFromCSV} className="hidden"/>
+                    <input type="file" accept=".csv" onChange={importFromCSV} className="hidden" />
                 </label>
             </div>
 
@@ -266,15 +273,15 @@ export default function GroceryTracker() {
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {items.map(item => (
                         <div key={item.id} className="p-4 rounded shadow bg-zinc-200 dark:bg-zinc-900">
-                            <div className="font-bold text-lg">{item.name}</div>
+                            <div className="font-bold text-blue-500 underline text-lg cursor-pointer" onClick={() => viewItemDetails(item.id)}>
+                                {item.name}
+                            </div>
                             <div>Cost: ${item.cost}</div>
                             <div>Quantity: {item.quantity}</div>
                             <div>Expiry: {item.expiry}</div>
                             <div className="mt-2">
-                                <button onClick={() => editItem(item.id)} className="text-sm mr-2 text-blue-500">Edit
-                                </button>
-                                <button onClick={() => deleteItem(item.id)} className="text-sm text-red-500">Delete
-                                </button>
+                                <button onClick={() => editItem(item.id)} className="text-sm mr-2 text-blue-500">Edit</button>
+                                <button onClick={() => deleteItem(item.id)} className="text-sm text-red-500">Delete</button>
                             </div>
                         </div>
                     ))}
@@ -286,7 +293,7 @@ export default function GroceryTracker() {
                     <ul>
                         {Object.keys(monthlyTotals).map(month => {
                             const date = new Date(month);
-                            const formattedDate = date.toLocaleString('default', {month: 'long', year: 'numeric'});
+                            const formattedDate = date.toLocaleString('default', { month: 'long', year: 'numeric' });
                             return (
                                 <li key={month} className="p-2 mb-2 rounded-md text-xl">
                                     <span>{formattedDate}: </span>
@@ -303,7 +310,7 @@ export default function GroceryTracker() {
             </div>
             <div className="py-8">
                 <h2 className="text-2xl font-semibold mb-4">Monthly Expenses Chart</h2>
-                <Bar data={chartData} options={chartOptions}/>
+                <Bar data={chartData} options={chartOptions} />
             </div>
         </div>
     );
