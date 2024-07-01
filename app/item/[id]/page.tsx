@@ -1,8 +1,10 @@
+// app/item/[id]/page.tsx
 "use client";
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import ItemDetails from '../../../components/ItemDetails';
+import Layout from '../../../components/Layout';
 
 interface Item {
     id: number;
@@ -51,7 +53,7 @@ const ItemPage = ({ params }: { params: { id: string } }) => {
         return <div>Loading...</div>;
     }
 
-    return item ? <ItemDetails item={item} onSave={handleSave} /> : <div>Loading...</div>;
+    return item ? <ItemDetails item={item} onSave={handleSave} /> : <div>Loading...</div>
 };
 
 export default ItemPage;

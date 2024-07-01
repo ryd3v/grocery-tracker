@@ -210,7 +210,6 @@ export default function GroceryTracker() {
             )}
             {isLoading && <div
                 className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-opacity-50 bg-gray-500">Loading...</div>}
-            <h1 className="text-3xl font-bold mb-4 uppercase">Grocery Tracker</h1>
             <form onSubmit={addItem} className="grid gap-4 mb-4 md:grid-cols-2">
                 {error && <div className="col-span-2 mb-2 text-red-600">{error}</div>}
                 <div className="mb-2">

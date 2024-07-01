@@ -10,6 +10,7 @@ import data as CSV files. Built with Next.js, Tailwind CSS, and TypeScript.
 - Add, edit, and delete grocery items.
 - Track monthly expenses and total stock.
 - Export and import data as CSV files.
+- Detailed item view with nutritional information
 - Responsive design with auto dark mode support.
 - Display monthly expenses in a chart.
 
@@ -52,6 +53,12 @@ import data as CSV files. Built with Next.js, Tailwind CSS, and TypeScript.
 
 1. Fill in the item details in the form: Name, Cost, Quantity, and Expiry Date.
 2. Click the "Add Item" button.
+
+### Add Item Details
+
+1. Click item title
+2. Enter nutrition info
+3. Click save
 
 ### Editing an Item
 
