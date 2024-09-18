@@ -11,7 +11,7 @@
   "dependencies": {
     "chart.js": "^4.4.3",
     "file-saver": "^2.0.5",
-    "next": "14.2.4",
+    "next": "14.2.10",
     "papaparse": "^5.4.1",
     "react": "^18",
     "react-chartjs-2": "^5.2.0",
